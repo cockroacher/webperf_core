@@ -27,7 +27,7 @@ def run_test(_, langCode, url):
 
     # bashCommand = ["pa11y-ci", "--json", "{0}".format(url)]
 
-    bashCommand = ["pa11y-ci", "--json", "{0}".format(url)]
+    bashCommand = ["pa11y-ci", "--help"]
 
     print('A', bashCommand)
     # process = subprocess.Popen(bashCommand)
