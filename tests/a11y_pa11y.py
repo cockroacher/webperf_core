@@ -34,14 +34,16 @@ def run_test(_, langCode, url):
     # process = subprocess.Popen(bashCommand)
     # process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
     #     bashCommand.split(), stdout=subprocess.PIPE, shell=True)
-    process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE, shell=True)
+    process = subprocess.call(
+        "pa11y-ci --json {0}".format(url), shell=True)
+
     print('B')
     # output, error = process.communicate(input='--help')
-    output = process.stdout.read()
-    error = process.stderr
+    # output = process.stdout.read()
+    # error = process.stderr
     print('C')
-    print('D1', output)
-    print('D2', error)
+    # print('D1', output)
+    # print('D2', error)
 
     json_result = json.loads(output)
 
