@@ -25,9 +25,20 @@ def run_test(_, langCode, url):
     print(_('TEXT_TEST_START').format(
         datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
-    bashCommand = ["pa11y-ci", "--json", "\"{0}\"".format(url)]
-    process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
+    # bashCommand = ["pa11y-ci", "--json", "{0}".format(url)]
+
+    bashCommand = ["pa11y-ci", "--json", "{0}".format(url)]
+
+    print('A', bashCommand)
+    # process = subprocess.Popen(bashCommand)
+    # process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
+    #     bashCommand.split(), stdout=subprocess.PIPE, shell=True)
+    process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE, shell=True)
+    print('B')
     output, error = process.communicate()
+    print('C')
+    print('D1', output)
+    print('D2', error)
 
     json_result = json.loads(output)
 
