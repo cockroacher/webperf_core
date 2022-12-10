@@ -27,16 +27,18 @@ def run_test(_, langCode, url):
 
     # bashCommand = ["pa11y-ci", "--json", "{0}".format(url)]
 
-    bashCommand = ["pa11y-ci", url]
+    bashCommand = ["pa11y-ci", "--json", url]
 
     print('A', bashCommand)
 
     # process = subprocess.Popen(bashCommand)
     # process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
     #     bashCommand.split(), stdout=subprocess.PIPE, shell=True)
-    process = subprocess.Popen(bashCommand, shell=True)
+    process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE, shell=True)
     print('B')
-    output, error = process.communicate(input='--help')
+    # output, error = process.communicate(input='--help')
+    output = process.stdout.read()
+    error = process.stderr
     print('C')
     print('D1', output)
     print('D2', error)
