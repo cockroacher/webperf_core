@@ -212,7 +212,8 @@ def run_test(_, langCode, url):
     # review += review_messages
 
     rating.set_overall(points)
-    rating.overall_review = review
+    rating.overall_review.clear()
+    rating.overall_review.append(review)
 
     print(_('TEXT_TEST_END').format(
         datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))

@@ -109,7 +109,7 @@ def run_test(_, langCode, url, googlePageSpeedApiKey, strategy, category, review
         review_rating = Rating(_, review_show_improvements_only)
         review_rating.set_overall(review_item[2], review_item[1])
         rating += review_rating
-    review = rating.overall_review
+    review = ''.join(rating.overall_review)
 
     if category == 'performance':
         rating.set_overall(points)
@@ -121,7 +121,8 @@ def run_test(_, langCode, url, googlePageSpeedApiKey, strategy, category, review
         rating.a11y_review = review
     else:
         rating.set_overall(points)
-        rating.overall_review = review
+        rating.overall_review.clear()
+        rating.overall_review.append(review)
     rating.overall_count = 1
 
     return (rating, return_dict)

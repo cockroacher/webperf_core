@@ -76,8 +76,8 @@ def run_test(_, langCode, url):
         rating += checked_url_rating
 
     if nof_checks > 1:
-        rating.overall_review += _local('TEXT_REVIEW_SCORE_IS_DIVIDED').format(
-            nof_checks)
+        rating.overall_review.append(_local('TEXT_REVIEW_SCORE_IS_DIVIDED').format(
+            nof_checks))
 
     # if len(review) == 0:
     #    review = _('TEXT_REVIEW_NO_REMARKS')
@@ -565,8 +565,6 @@ def check_http_fallback(url, _, _local):
         http2_rating.set_performance(
             5.0, _local('TEXT_REVIEW_HTTP_VERSION_HTTP_2'))
     else:
-        http2_rating.set_overall(
-            1.0, _local('TEXT_REVIEW_HTTP_VERSION_HTTP_2'))
         http2_rating.set_standards(
             1.0, _local('TEXT_REVIEW_HTTP_VERSION_HTTP_2'))
         http2_rating.set_performance(

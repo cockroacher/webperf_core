@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import json
-import gettext
 
 
 class Sites(object):
@@ -35,19 +33,19 @@ class Sites(object):
 class Rating(object):
     overall = -1
     overall_count = 1
-    overall_review = ''
+    overall_review = list()
     integrity_and_security = -1
     integrity_and_security_count = 1
-    integrity_and_security_review = ''
+    integrity_and_security_review = list()
     performance = -1
     performance_count = 1
-    performance_review = ''
+    performance_review = list()
     standards = -1
     standards_count = 1
-    standards_review = ''
+    standards_review = list()
     a11y = -1
     a11y_count = 1
-    a11y_review = ''
+    a11y_review = list()
     review_show_improvements_only = False
 
     _ = False
@@ -58,6 +56,11 @@ class Rating(object):
         self.overall = -1
         self._ = _
         self.review_show_improvements_only = review_show_improvements_only
+        self.overall_review = list()
+        self.integrity_and_security_review = list()
+        self.performance_review = list()
+        self.standards_review = list()
+        self.a11y_review = list()
 
     def set_overall(self, points, review=''):
         if(points < 1.0):
@@ -67,8 +70,8 @@ class Rating(object):
         else:
             self.overall = points
         if review != '' and (not self.review_show_improvements_only or points < 5.0):
-            self.overall_review = self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
-                review, points)
+            self.overall_review.append(self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
+                review, points))
         self.is_set = True
 
     def get_overall(self):
@@ -82,8 +85,8 @@ class Rating(object):
         else:
             self.integrity_and_security = points
         if review != '' and (not self.review_show_improvements_only or points < 5.0):
-            self.integrity_and_security_review = self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
-                review, points)
+            self.integrity_and_security_review.append(self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
+                review, points))
         self.is_set = True
 
     def get_integrity_and_security(self):
@@ -97,8 +100,8 @@ class Rating(object):
         else:
             self.performance = points
         if review != '' and (not self.review_show_improvements_only or points < 5.0):
-            self.performance_review = self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
-                review, points)
+            self.performance_review.append(self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
+                review, points))
         self.is_set = True
 
     def get_performance(self):
@@ -112,8 +115,8 @@ class Rating(object):
         else:
             self.standards = points
         if review != '' and (not self.review_show_improvements_only or points < 5.0):
-            self.standards_review = self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
-                review, points)
+            self.standards_review.append(self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
+                review, points))
         self.is_set = True
 
     def get_standards(self):
@@ -127,8 +130,8 @@ class Rating(object):
         else:
             self.a11y = points
         if review != '' and (not self.review_show_improvements_only or points < 5.0):
-            self.a11y_review = self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
-                review, points)
+            self.a11y_review.append(self._('TEXT_TEST_REVIEW_RATING_ITEM').format(
+                review, points))
         self.is_set = True
 
     def get_a11y(self):
@@ -141,18 +144,26 @@ class Rating(object):
         return float("{0:.2f}".format(value))
 
     def get_reviews(self):
-        text = self._('TEXT_TEST_REVIEW_OVERVIEW').format(self.overall_review)
-        if (self.get_integrity_and_security() != -1 and self.integrity_and_security_review != ''):
+
+        self.overall_review.sort()
+        self.integrity_and_security_review.sort()
+        self.performance_review.sort()
+        self.a11y_review.sort()
+        self.standards_review.sort()
+
+        text = self._('TEXT_TEST_REVIEW_OVERVIEW').format(
+            ''.join(self.overall_review))
+        if (self.get_integrity_and_security() != -1 and len(self.integrity_and_security_review) > 0):
             text += self._('TEXT_TEST_REVIEW_INTEGRITY_SECURITY').format(
-                self.integrity_and_security_review)
-        if (self.get_performance() != -1 and self.performance_review != ''):
+                ''.join(self.integrity_and_security_review))
+        if (self.get_performance() != -1 and len(self.performance_review) > 0):
             text += self._('TEXT_TEST_REVIEW_PERFORMANCE').format(
-                self.performance_review)
-        if (self.get_a11y() != -1 and self.a11y_review != ''):
-            text += self._('TEXT_TEST_REVIEW_ALLY').format(self.a11y_review)
-        if (self.get_standards() != -1 and self.standards_review != ''):
+                ''.join(self.performance_review))
+        if (self.get_a11y() != -1 and len(self.a11y_review) > 0):
+            text += self._('TEXT_TEST_REVIEW_ALLY').format(''.join(self.a11y_review))
+        if (self.get_standards() != -1 and len(self.standards_review) > 0):
             text += self._('TEXT_TEST_REVIEW_STANDARDS').format(
-                self.standards_review)
+                ''.join(self.standards_review))
 
         return text
 
@@ -187,8 +198,15 @@ class Rating(object):
                 tmp.is_set = True
                 tmp.overall = tmp_value[0]
                 tmp.overall_count = tmp_value[1]
-            tmp.overall_review = self.overall_review + \
-                other.overall_review
+
+            # Prohibit duplicate review messages
+            for line in self.overall_review:
+                if not line in tmp.overall_review:
+                    tmp.overall_review.append(line)
+
+            for line in other.overall_review:
+                if not line in tmp.overall_review:
+                    tmp.overall_review.append(line)
 
             tmp_value = tmp.get_combined_value(
                 self.integrity_and_security, self.integrity_and_security_count, other.integrity_and_security, other.integrity_and_security_count)
@@ -196,8 +214,15 @@ class Rating(object):
                 tmp.is_set = True
                 tmp.integrity_and_security = tmp_value[0]
                 tmp.integrity_and_security_count = tmp_value[1]
-            tmp.integrity_and_security_review = self.integrity_and_security_review + \
-                other.integrity_and_security_review
+
+            # Prohibit duplicate review messages
+            for line in self.integrity_and_security_review:
+                if not line in tmp.integrity_and_security_review:
+                    tmp.integrity_and_security_review.append(line)
+
+            for line in other.integrity_and_security_review:
+                if not line in tmp.integrity_and_security_review:
+                    tmp.integrity_and_security_review.append(line)
 
             tmp_value = tmp.get_combined_value(
                 self.performance, self.performance_count, other.performance, other.performance_count)
@@ -205,7 +230,15 @@ class Rating(object):
                 tmp.is_set = True
                 tmp.performance = tmp_value[0]
                 tmp.performance_count = tmp_value[1]
-            tmp.performance_review = self.performance_review + other.performance_review
+
+            # Prohibit duplicate review messages
+            for line in self.performance_review:
+                if not line in tmp.performance_review:
+                    tmp.performance_review.append(line)
+
+            for line in other.performance_review:
+                if not line in tmp.performance_review:
+                    tmp.performance_review.append(line)
 
             tmp_value = tmp.get_combined_value(
                 self.standards, self.standards_count, other.standards, other.standards_count)
@@ -213,7 +246,15 @@ class Rating(object):
                 tmp.is_set = True
                 tmp.standards = tmp_value[0]
                 tmp.standards_count = tmp_value[1]
-            tmp.standards_review = self.standards_review + other.standards_review
+
+            # Prohibit duplicate review messages
+            for line in self.standards_review:
+                if not line in tmp.standards_review:
+                    tmp.standards_review.append(line)
+
+            for line in other.standards_review:
+                if not line in tmp.standards_review:
+                    tmp.standards_review.append(line)
 
             tmp_value = tmp.get_combined_value(
                 self.a11y, self.a11y_count, other.a11y, other.a11y_count)
@@ -221,7 +262,16 @@ class Rating(object):
                 tmp.is_set = True
                 tmp.a11y = tmp_value[0]
                 tmp.a11y_count = tmp_value[1]
-            tmp.a11y_review = self.a11y_review + other.a11y_review
+
+            # Prohibit duplicate review messages
+            for line in self.a11y_review:
+                if not line in tmp.a11y_review:
+                    tmp.a11y_review.append(line)
+
+            for line in other.a11y_review:
+                if not line in tmp.a11y_review:
+                    tmp.a11y_review.append(line)
+
             return tmp
 
     def get_combined_value(self, val1, val1_count, val2, val2_count):
@@ -280,7 +330,8 @@ class SiteTests(object):
             rating.integrity_and_security_review)
         self.check_report_perf = self.encode_review(rating.performance_review)
         self.check_report_a11y = self.encode_review(rating.a11y_review)
-        self.check_report_stand = self.encode_review(rating.standards_review)
+        self.check_report_stand = self.encode_review(
+            ''.join(rating.standards_review))
         self.rating = rating.get_overall()
         self.rating_sec = rating.get_integrity_and_security()
         self.rating_perf = rating.get_performance()

@@ -103,8 +103,12 @@ def run_test(_, langCode, url):
             number_of_errors)
 
     # rating.set_overall(points)
-    rating.standards_review = rating.overall_review + rating.standards_review
-    rating.overall_review = review
+    rating.standards_review.clear()
+    rating.standards_review.append(rating.overall_review)
+    rating.standards_review.append(rating.standards_review)
+
+    rating.overall_review.clear()
+    rating.overall_review.append(review)
 
     print(_('TEXT_TEST_END').format(
         datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))

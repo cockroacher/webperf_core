@@ -79,7 +79,8 @@ def run_test(_, langCode, url):
     elif points <= 1.0:
         review = _local('TEXT_REVIEW_CSS_IS_VERY_BAD')
 
-    rating.overall_review = review
+    rating.overall_review.clear()
+    rating.overall_review.append(review)
 
     print(_('TEXT_TEST_END').format(
         datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))

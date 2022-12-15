@@ -175,7 +175,7 @@ def run_test(_, langCode, url, device='phone'):
 
     rating.set_overall(points, review_overall)
 
-    rating.overall_review = rating.overall_review + review
+    rating.overall_review.append(review)
 
     print(_('TEXT_TEST_END').format(
         datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))

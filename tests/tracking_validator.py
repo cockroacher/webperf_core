@@ -319,7 +319,8 @@ def rate_cookies(browser, url, _local, _):
 
         rating += secure_rating
 
-    integrity_and_security_review = rating.integrity_and_security_review
+    integrity_and_security_review = ''.join(
+        rating.integrity_and_security_review)
 
     result_rating = Rating(_, review_show_improvements_only)
     points = rating.get_overall()
