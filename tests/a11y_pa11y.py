@@ -37,13 +37,13 @@ def run_test(_, langCode, url):
 
     # bashCommand = "node node_modules{1}pa11y-ci{1}bin{1}pa11y-ci.js --json {0}".format(
     #     url, os.path.sep)
-    bashCommand = "xvfb-run node node_modules{1}pa11y{1}bin{1}pa11y.js --debug -s WCAG2AAA {0}".format(
+    bashCommand = "node node_modules{1}pa11y{1}bin{1}pa11y.js --reporter json {0}".format(
         url, os.path.sep)
 
     print('A', bashCommand)
 
     process = subprocess.Popen(
-        bashCommand.split())
+        bashCommand.split(), stdout=subprocess.PIPE)
 
     print('B')
     output, error = process.communicate()
