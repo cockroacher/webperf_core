@@ -37,8 +37,10 @@ def run_test(_, langCode, url):
 
     # bashCommand = "node node_modules{1}pa11y-ci{1}bin{1}pa11y-ci.js --json {0}".format(
     #     url, os.path.sep)
-    bashCommand = "node node_modules{1}pa11y{1}bin{1}pa11y.js -t 1200000 {0}".format(
-        url, os.path.sep)
+    # bashCommand = "node node_modules{1}pa11y{1}bin{1}pa11y.js -t 300000 -s WCAG2AAA {0}".format(
+    #     url, os.path.sep)
+    bashCommand = "node node_modules{0}pa11y{0}bin{0}pa11y.js -n".format(
+        os.path.sep)
 
     print('A', bashCommand)
 
