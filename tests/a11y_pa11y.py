@@ -35,7 +35,9 @@ def run_test(_, langCode, url):
     #     bashCommand.split(), stdout=subprocess.PIPE, shell=True)
     # process = subprocess.getoutput("pa11y-ci --json " + url)
 
-    bashCommand = "node node_modules{1}pa11y-ci{1}bin{1}pa11y-ci.js --json {0}".format(
+    # bashCommand = "node node_modules{1}pa11y-ci{1}bin{1}pa11y-ci.js --json {0}".format(
+    #     url, os.path.sep)
+    bashCommand = "node node_modules{1}pa11y{1}bin{1}pa11y.js {0}".format(
         url, os.path.sep)
 
     print('A', bashCommand)
