@@ -52,8 +52,8 @@ def run_test(_, langCode, url):
     # output = process.stdout.read()
     # error = process.stderr
     print('C')
-    # print('D1', output)
-    # print('D2', error)
+    print('D1', output)
+    print('D2', error)
     # output = process
 
     json_result = json.loads(output)
