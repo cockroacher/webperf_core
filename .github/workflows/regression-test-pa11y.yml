@@ -15,13 +15,16 @@ jobs:
       with:
         python-version: '3.9.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
         architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
-    - name: Setup Chrome (headless)
-      uses: browser-actions/setup-chrome@latest
-    - name: Pa11y Actions
-      uses: booleans-oss/pa11y-actions@v1
     - name: Setup dependencies using pip
       run: pip install -r requirements.txt
       if: ${{ success() }}
+    - name: Setup node
+      uses: actions/setup-node@v3
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@latest
+    - run: chrome --version
+    - name: Setup Pa11y CI npm package
+      run: npm install pa11y-ci
     - name: Setup config (using SAMPLE-config.py as config.py)
       run: python .github/workflows/verify_result.py -c false
       if: ${{ success() }}
