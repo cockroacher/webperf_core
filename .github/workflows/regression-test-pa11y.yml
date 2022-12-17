@@ -30,6 +30,7 @@ jobs:
       if: ${{ success() }}
     - name: Accessibility (Pa11y)
       run: |
-         python default.py -t 18 -r -u https://webperf.se/ -o .github/workflows/testresult-18.json
+         Xvfb&
+         xvfb-run python default.py -t 18 -r -u https://webperf.se/ -o .github/workflows/testresult-18.json
          python .github/workflows/verify_result.py -t 18
       if: ${{ success() }}
