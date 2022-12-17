@@ -21,7 +21,7 @@ jobs:
     - name: Setup node
       uses: actions/setup-node@v3
     - name: Setup Pa11y CI npm package
-      run: npm install -g pa11y-ci
+      run: npm install pa11y-ci
     - name: Setup config (using SAMPLE-config.py as config.py)
       run: python .github/workflows/verify_result.py -c false
       if: ${{ success() }}
