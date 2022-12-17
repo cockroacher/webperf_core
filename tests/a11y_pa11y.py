@@ -41,7 +41,7 @@ def run_test(_, langCode, url):
     print('A', bashCommand)
 
     process = subprocess.Popen(
-        bashCommand.split(), stdout=subprocess.PIPE)
+        bashCommand.split())
 
     print('B')
     output, error = process.communicate()
