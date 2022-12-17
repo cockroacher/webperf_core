@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import subprocess
 import datetime
 import json
@@ -27,24 +28,33 @@ def run_test(_, langCode, url):
 
     # bashCommand = ["pa11y-ci", "--json", "{0}".format(url)]
 
-    bashCommand = ["pa11y-ci", "--json", url]
-
-    print('A', bashCommand)
+    # bashCommand = ["node" "pa11y-ci", "--json", url]
 
     # process = subprocess.Popen(bashCommand)
     # process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
     #     bashCommand.split(), stdout=subprocess.PIPE, shell=True)
-    process = subprocess.getoutput("pa11y-ci --json " + url)
+    # process = subprocess.getoutput("pa11y-ci --json " + url)
+
+    bashCommand = "node node_modules{1}pa11y-ci{1}bin{1}pa11y-ci.js --json {0}".format(
+        url, os.path.sep)
+
+    print('A', bashCommand)
+
+    process = subprocess.Popen(
+        bashCommand.split(), stdout=subprocess.PIPE)
 
     print('B')
-    print('B1', process)
+    output, error = process.communicate()
+    # result = str(output)
+
+    # print('B1', process)
     # output, error = process.communicate(input='--help')
     # output = process.stdout.read()
     # error = process.stderr
     print('C')
     # print('D1', output)
     # print('D2', error)
-    output = process
+    # output = process
 
     json_result = json.loads(output)
 
