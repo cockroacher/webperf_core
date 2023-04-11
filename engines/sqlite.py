@@ -55,16 +55,25 @@ def read_sites(input_filename, input_skip, input_take):
     conn = sqlite3.connect(input_filename)
     c = conn.cursor()
 
-    current_index = 0
-    for row in c.execute('SELECT id, website FROM sites WHERE active=1 ORDER BY {0}'.format(order_by)):
-        if use_item(current_index, input_skip, input_take):
-            sites.append([row[0], row[1]])
-        current_index += 1
+    try:
+        current_index = 0
+        for row in c.execute('SELECT id, website, category FROM sites WHERE active=1 ORDER BY {0}'.format(order_by)):
+            if use_item(current_index, input_skip, input_take):
+                sites.append([row[0], row[1], row[2]])
+            current_index += 1
+    except Exception as ex:
+        # table doesn't have 'category' support
+        current_index = 0
+        for row in c.execute('SELECT id, website FROM sites WHERE active=1 ORDER BY {0}'.format(order_by)):
+            if use_item(current_index, input_skip, input_take):
+                sites.append([row[0], row[1], -1])
+            current_index += 1
+
     conn.close()
     return sites
 
 
-def write_tests(output_filename, siteTests):
+def write_tests(output_filename, siteTests, sites):
     conn = sqlite3.connect(output_filename)
     c = conn.cursor()
 
@@ -98,7 +107,7 @@ def write_tests(output_filename, siteTests):
             # automatically update database
             print('db -', str(ex))
             ensure_latest_db_version(output_filename)
-            write_tests(output_filename, siteTests)
+            write_tests(output_filename, siteTests, sites)
 
             print('db - upgrading db')
         else:
