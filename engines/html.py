@@ -103,9 +103,137 @@ def get_sites_content(sites, test_results, overview_filepath):
     return index_content
 
 
+def get_test_item(test):
+    return """<li value="{0}"><a href="..\\test-{0}.html">{1}</a></li>\r\n""".format(test['id'], test['name'])
+
+
 def get_tests_content(test_results, overview_filepath):
     test = json.dumps(test_results, indent=4)
     print('A', test)
+
+    tests = {}
+    for result in test_results:
+        if result['type_of_test'] not in tests:
+            test_type = result['type_of_test']
+            test_name = 'UNKNOWN'
+            if test_type == 1:
+                test_name = 'Performance (Google Lighthouse)'
+            elif test_type == 2:
+                test_name = '404 (Page not Found)'
+            elif test_type == 5:
+                test_name = 'Best Practice(Google Lighthouse)'
+            elif test_type == 6:
+                test_name = 'HTML Validation'
+            elif test_type == 7:
+                test_name = 'CSS Validation'
+            elif test_type == 8:
+                test_name = 'PWA (Google Lighthouse)'
+            elif test_type == 9:
+                test_name = 'Standard files'
+            elif test_type == 10:
+                test_name = 'Accessibility (Google Lighthouse)'
+            elif test_type == 15:
+                test_name = 'Performance (Sitespeed.io)'
+            elif test_type == 17:
+                test_name = 'Quality on frontend(Yellow Lab Tools)'
+            elif test_type == 18:
+                test_name = 'Accessibility (Pa11y)'
+            elif test_type == 20:
+                test_name = 'Integrity & Security(Webbkoll)'
+            elif test_type == 21:
+                test_name = 'HTTP & Network'
+            elif test_type == 22:
+                test_name = 'Energy Efficiency (Website Carbon Calculator)'
+            elif test_type == 23:
+                test_name = 'Tracking and Privacy (Beta)'
+            elif test_type == 24:
+                test_name = 'Email (Beta)'
+            elif test_type == 25:
+                test_name = 'Software (Alpha)'
+            elif test_type == 26:
+                test_name = 'Accessibility Statement (Alfa)'
+
+            tests[test_type] = {
+                'id': test_type,
+                'name': test_name,
+                'description': 'This test test X',
+                'results': []
+            }
+        tests[test_type]['results'].append(result)
+
+    items = list(map(get_test_item, tests.values()))
+    nice_tests = json.dumps(tests, indent=4)
+
+    index_content = """<!DOCTYPE html><html lang="en" class="no-js"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>
+    <h1>Tests</h1>
+    <p>
+        This section will show results from a test focused way.<br />
+    </p>
+
+    <ol>{0}</ol>
+    <h2>RAW:</h2>
+    <p>
+        This section will show the raw JSON data from webperf-core
+    </p>
+    <code><pre>{1}</pre></code>
+    </body></html>""".format(''.join(items), nice_tests)
+
+    return index_content
+
+
+def get_test_content(test_result):
+    test = json.dumps(test_results, indent=4)
+    print('A', test)
+
+    tests = {}
+    for result in test_results:
+        if result['type_of_test'] not in tests:
+            test_type = result['type_of_test']
+            test_name = 'UNKNOWN'
+            if test_type == 1:
+                test_name = 'Performance (Google Lighthouse)'
+            elif test_type == 2:
+                test_name = '404 (Page not Found)'
+            elif test_type == 5:
+                test_name = 'Best Practice(Google Lighthouse)'
+            elif test_type == 6:
+                test_name = 'HTML Validation'
+            elif test_type == 7:
+                test_name = 'CSS Validation'
+            elif test_type == 8:
+                test_name = 'PWA (Google Lighthouse)'
+            elif test_type == 9:
+                test_name = 'Standard files'
+            elif test_type == 10:
+                test_name = 'Accessibility (Google Lighthouse)'
+            elif test_type == 15:
+                test_name = 'Performance (Sitespeed.io)'
+            elif test_type == 17:
+                test_name = 'Quality on frontend(Yellow Lab Tools)'
+            elif test_type == 18:
+                test_name = 'Accessibility (Pa11y)'
+            elif test_type == 20:
+                test_name = 'Integrity & Security(Webbkoll)'
+            elif test_type == 21:
+                test_name = 'HTTP & Network'
+            elif test_type == 22:
+                test_name = 'Energy Efficiency (Website Carbon Calculator)'
+            elif test_type == 23:
+                test_name = 'Tracking and Privacy (Beta)'
+            elif test_type == 24:
+                test_name = 'Email (Beta)'
+            elif test_type == 25:
+                test_name = 'Software (Alpha)'
+            elif test_type == 26:
+                test_name = 'Accessibility Statement (Alfa)'
+
+            tests[test_type] = {
+                'id': test_type,
+                'name': test_name,
+                'description': 'This test test X'
+            }
+
+    items = list(map(get_test_item, tests.values()))
 
     index_content = """<!DOCTYPE html><html lang="en" class="no-js"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>
     <h1>Tests</h1>
