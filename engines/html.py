@@ -112,6 +112,8 @@ def create_tests(test_results, input_sites, tests_filepath, overview_filepath):
                 test_name = 'Performance (Google Lighthouse)'
             elif test_type == 2:
                 test_name = '404 (Page not Found)'
+            elif test_type == 4:
+                test_name = 'SEO (Google Lighthouse)'
             elif test_type == 5:
                 test_name = 'Best Practice(Google Lighthouse)'
             elif test_type == 6:
@@ -197,18 +199,56 @@ def create_tests(test_results, input_sites, tests_filepath, overview_filepath):
 
 def create_site(site, tests_filepath):
     nice_site = json.dumps(site, indent=4)
+
+    review_overall = []
+    review_a11y = []
+    review_sec = []
+    review_perf = []
+    review_stand = []
+
+    for result in site['results']:
+        review_overall.append(result['report'].replace(
+            '<', '&gt;').replace('>', '&lt;').replace('\r\n', '<br />'))
+        review_a11y.append(result['report_a11y'].replace(
+            '<', '&gt;').replace('>', '&lt;').replace('\r\n', '<br />'))
+        review_sec.append(result['report_sec'].replace(
+            '<', '&gt;').replace('>', '&lt;').replace('\r\n', '<br />'))
+        review_perf.append(result['report_perf'].replace(
+            '<', '&gt;').replace('>', '&lt;').replace('\r\n', '<br />'))
+        review_stand.append(result['report_stand'].replace(
+            '<', '&gt;').replace('>', '&lt;').replace('\r\n', '<br />'))
+
     index_content = """<!DOCTYPE html><html lang="en" class="no-js"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>
     <h1>Site Overview</h1>
     <p>
         Website url: <a href="{2}">{2}</a>
     </p>
+    <h2>Overview</h2>
+    <p>{3}</p>
+
+    <h2>Security and Integrity</h2>
+    <p>{4}</p>
+
+    <h2>Performance</h2>
+    <p>{5}</p>
+
+    <h2>Accessability</h2>
+    <p>{6}</p>
+
+    <h2>Standards</h2>
+    <p>{7}</p>
 
     <h2>RAW:</h2>
     <p>
         This section will show the raw JSON data from webperf-core
     </p>
     <code><pre>{1}</pre></code>
-    </body></html>""".format(site['id'], nice_site, site['url'])
+    </body></html>""".format(site['id'], nice_site, site['url'],
+                             ''.join(review_overall),
+                             ''.join(review_sec),
+                             ''.join(review_perf),
+                             ''.join(review_a11y),
+                             ''.join(review_stand))
 
     test_filepath = tests_filepath.replace(
         'tests.htm', 'site-{0}.htm'.format(site['id']))
