@@ -4,8 +4,8 @@ import json
 
 
 def write_tests(output_filename, siteTests, sites):
-    test = json.dumps(siteTests, indent=4)
-    print('A', test)
+    # test = json.dumps(siteTests, indent=4)
+    # print('A', test)
 
     root_filepath = output_filename.removesuffix('.htm')
 
@@ -19,29 +19,20 @@ def write_tests(output_filename, siteTests, sites):
     categories_filepath = root_filepath + prefix + 'categories.htm'
     features_filepath = root_filepath + prefix + 'features.htm'
 
-    index_content = get_overview_content(
-        sites_filepath, tests_filepath, categories_filepath, features_filepath)
-    with open(overview_filepath, 'w') as outfile:
-        outfile.write(index_content)
+    create_overview(
+        overview_filepath, sites_filepath, tests_filepath, categories_filepath, features_filepath)
 
-    sites_content = get_sites_content(sites, siteTests, overview_filepath)
-    with open(sites_filepath, 'w') as outfile:
-        outfile.write(sites_content)
+    create_sites(
+        sites, siteTests, sites_filepath, overview_filepath)
 
-    tests_content = get_tests_content(siteTests, overview_filepath)
-    with open(tests_filepath, 'w') as outfile:
-        outfile.write(tests_content)
+    create_tests(siteTests, sites, tests_filepath, overview_filepath)
 
-    categories_content = get_categories_content(siteTests, overview_filepath)
-    with open(categories_filepath, 'w') as outfile:
-        outfile.write(categories_content)
+    create_categories(siteTests, categories_filepath, overview_filepath)
 
-    features_content = get_features_content(siteTests, overview_filepath)
-    with open(features_filepath, 'w') as outfile:
-        outfile.write(features_content)
+    create_features(siteTests, features_filepath, overview_filepath)
 
 
-def get_overview_content(sites_filepath, tests_filepath, categories_filepath, features_filepath):
+def create_overview(overview_filepath, sites_filepath, tests_filepath, categories_filepath, features_filepath):
     index_content = """<!DOCTYPE html><html lang="en" class="no-js"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>
     <h1>Overview</h1>
     <p>
@@ -70,14 +61,15 @@ def get_overview_content(sites_filepath, tests_filepath, categories_filepath, fe
     </p>
     </body></html>""".format(sites_filepath, tests_filepath, categories_filepath, features_filepath)
 
-    return index_content
+    with open(overview_filepath, 'w') as outfile:
+        outfile.write(index_content)
 
 
 def get_site_item(site):
-    return """<li><a href="..\site-{0}.html">{1}</a></li>\r\n""".format(site[0], site[1])
+    return """<li><a href="site-{0}.htm">{1}</a></li>\r\n""".format(site[0], site[1])
 
 
-def get_sites_content(sites, test_results, overview_filepath):
+def create_sites(sites, test_results, sites_filepath, overview_filepath):
     test = json.dumps(sites, indent=4)
     # print('A', test)
 
@@ -89,7 +81,7 @@ def get_sites_content(sites, test_results, overview_filepath):
         This section will show results from a website/url focused way.<br />
     </p>
 
-    <ol>
+    <ol start="1">
         {0}
     </ol>
 
@@ -100,21 +92,21 @@ def get_sites_content(sites, test_results, overview_filepath):
     <code><pre>{1}</pre></code>
     </body></html>""".format(''.join(items), test)
 
-    return index_content
+    with open(sites_filepath, 'w') as outfile:
+        outfile.write(index_content)
 
 
 def get_test_item(test):
-    return """<li value="{0}"><a href="..\\test-{0}.html">{1}</a></li>\r\n""".format(test['id'], test['name'])
+    return """<li value="{0}"><a href="test-{0}.htm">{1}</a></li>\r\n""".format(test['id'], test['name'])
 
 
-def get_tests_content(test_results, overview_filepath):
-    test = json.dumps(test_results, indent=4)
-    print('A', test)
+def create_tests(test_results, input_sites, tests_filepath, overview_filepath):
 
     tests = {}
+    sites = {}
     for result in test_results:
-        if result['type_of_test'] not in tests:
-            test_type = result['type_of_test']
+        test_type = result['type_of_test']
+        if test_type not in tests:
             test_name = 'UNKNOWN'
             if test_type == 1:
                 test_name = 'Performance (Google Lighthouse)'
@@ -161,6 +153,21 @@ def get_tests_content(test_results, overview_filepath):
             }
         tests[test_type]['results'].append(result)
 
+        site_id = result['site_id']
+        if site_id not in sites:
+            site_url = 'https://example.org/'
+
+            for input_site in input_sites:
+                if input_site[0] == site_id:
+                    site_url = input_site[1]
+
+            sites[site_id] = {
+                'id': site_id,
+                'url': site_url,
+                'results': []
+            }
+        sites[site_id]['results'].append(result)
+
     items = list(map(get_test_item, tests.values()))
     nice_tests = json.dumps(tests, indent=4)
 
@@ -178,75 +185,46 @@ def get_tests_content(test_results, overview_filepath):
     <code><pre>{1}</pre></code>
     </body></html>""".format(''.join(items), nice_tests)
 
-    return index_content
+    with open(tests_filepath, 'w') as outfile:
+        outfile.write(index_content)
+
+    for test in tests.values():
+        create_test(test, tests_filepath)
+
+    for site in sites.values():
+        create_site(site, tests_filepath)
 
 
-def get_test_content(test_result):
-    test = json.dumps(test_results, indent=4)
-    print('A', test)
-
-    tests = {}
-    for result in test_results:
-        if result['type_of_test'] not in tests:
-            test_type = result['type_of_test']
-            test_name = 'UNKNOWN'
-            if test_type == 1:
-                test_name = 'Performance (Google Lighthouse)'
-            elif test_type == 2:
-                test_name = '404 (Page not Found)'
-            elif test_type == 5:
-                test_name = 'Best Practice(Google Lighthouse)'
-            elif test_type == 6:
-                test_name = 'HTML Validation'
-            elif test_type == 7:
-                test_name = 'CSS Validation'
-            elif test_type == 8:
-                test_name = 'PWA (Google Lighthouse)'
-            elif test_type == 9:
-                test_name = 'Standard files'
-            elif test_type == 10:
-                test_name = 'Accessibility (Google Lighthouse)'
-            elif test_type == 15:
-                test_name = 'Performance (Sitespeed.io)'
-            elif test_type == 17:
-                test_name = 'Quality on frontend(Yellow Lab Tools)'
-            elif test_type == 18:
-                test_name = 'Accessibility (Pa11y)'
-            elif test_type == 20:
-                test_name = 'Integrity & Security(Webbkoll)'
-            elif test_type == 21:
-                test_name = 'HTTP & Network'
-            elif test_type == 22:
-                test_name = 'Energy Efficiency (Website Carbon Calculator)'
-            elif test_type == 23:
-                test_name = 'Tracking and Privacy (Beta)'
-            elif test_type == 24:
-                test_name = 'Email (Beta)'
-            elif test_type == 25:
-                test_name = 'Software (Alpha)'
-            elif test_type == 26:
-                test_name = 'Accessibility Statement (Alfa)'
-
-            tests[test_type] = {
-                'id': test_type,
-                'name': test_name,
-                'description': 'This test test X'
-            }
-
-    items = list(map(get_test_item, tests.values()))
-
+def create_site(site, tests_filepath):
+    nice_site = json.dumps(site, indent=4)
     index_content = """<!DOCTYPE html><html lang="en" class="no-js"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>
-    <h1>Tests</h1>
+    <h1>Site Overview</h1>
     <p>
-        This section will show results from a test focused way.<br />
+        Website url: <a href="{2}">{2}</a>
     </p>
 
-    <h2>TEST X</h2>
+    <h2>RAW:</h2>
     <p>
-        This test test X
+        This section will show the raw JSON data from webperf-core
+    </p>
+    <code><pre>{1}</pre></code>
+    </body></html>""".format(site['id'], nice_site, site['url'])
+
+    test_filepath = tests_filepath.replace(
+        'tests.htm', 'site-{0}.htm'.format(site['id']))
+    with open(test_filepath, 'w') as outfile:
+        outfile.write(index_content)
+
+
+def create_test(test, tests_filepath):
+    nice_test = json.dumps(test, indent=4)
+    index_content = """<!DOCTYPE html><html lang="en" class="no-js"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>
+    <h1>Test: {0}</h1>
+    <p>
+        {2}
     </p>
 
-    <h3>Test Weight/Percental</h3>
+    <h2>Test Weight/Percental</h2>
     <p>
         Skriv ut hur testets betyg fördelas, förslagsvis enligt nedan utifrån testets precentil:
         0-10,           1,0
@@ -261,7 +239,7 @@ def get_test_content(test_result):
         90-100          5,0
     </p>
 
-    <h3>Sites</h3>
+    <h2>Sites</h2>
     <p>
         Webbplatser och dess placering med högst betyg först.
     </p>
@@ -274,14 +252,17 @@ def get_test_content(test_result):
         This section will show the raw JSON data from webperf-core
     </p>
     <code><pre>{1}</pre></code>
-    </body></html>""".format(test_results, test)
+    </body></html>""".format(test['name'], nice_test, test['description'])
 
-    return index_content
+    test_filepath = tests_filepath.replace(
+        'tests.htm', 'test-{0}.htm'.format(test['id']))
+    with open(test_filepath, 'w') as outfile:
+        outfile.write(index_content)
 
 
-def get_categories_content(test_results, overview_filepath):
+def create_categories(test_results, categories_filepath, overview_filepath):
     test = json.dumps(test_results, indent=4)
-    print('A', test)
+    # print('A', test)
 
     index_content = """<!DOCTYPE html><html lang="en" class="no-js"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>
     <h1>Categories</h1>
@@ -300,12 +281,13 @@ def get_categories_content(test_results, overview_filepath):
     <code><pre>{1}</pre></code>
     </body></html>""".format(test_results, test)
 
-    return index_content
+    with open(categories_filepath, 'w') as outfile:
+        outfile.write(index_content)
 
 
-def get_features_content(test_results, overview_filepath):
+def create_features(test_results, features_filepath, overview_filepath):
     test = json.dumps(test_results, indent=4)
-    print('A', test)
+    # print('A', test)
 
     index_content = """<!DOCTYPE html><html lang="en" class="no-js"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>
     <h1>Features</h1>
@@ -324,4 +306,5 @@ def get_features_content(test_results, overview_filepath):
     <code><pre>{1}</pre></code>
     </body></html>""".format(test_results, test)
 
-    return index_content
+    with open(features_filepath, 'w') as outfile:
+        outfile.write(index_content)
